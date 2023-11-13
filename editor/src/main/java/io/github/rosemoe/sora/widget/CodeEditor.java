@@ -936,7 +936,7 @@ public class CodeEditor extends View implements ContentListener, Formatter.Forma
             Log.w(LOG_TAG, "Language(" + editorLanguage.toString() + ") returned null for symbol pairs. It is a mistake.");
             languageSymbolPairs = new SymbolPairMatch();
         }
-        languageSymbolPairs.setParent(props.overrideSymbolPairs);
+        languageSymbolPairs.setParent(getProps().overrideSymbolPairs);
 
         if (snippetController != null) {
             snippetController.stopSnippet();
@@ -1880,7 +1880,7 @@ public class CodeEditor extends View implements ContentListener, Formatter.Forma
         } else {
             int col = cur.getLeftColumn();
             int line = cur.getLeftLine();
-            if (props.deleteEmptyLineFast || (props.deleteMultiSpaces != 1 && col > 0 && text.charAt(line, col - 1) == ' ')) {
+            if (getProps().deleteEmptyLineFast || (getProps().deleteMultiSpaces != 1 && col > 0 && text.charAt(line, col - 1) == ' ')) {
                 // Check whether selection is in leading spaces
                 var text = this.text.getLine(cur.getLeftLine()).value;
                 var inLeading = true;
@@ -1903,7 +1903,7 @@ public class CodeEditor extends View implements ContentListener, Formatter.Forma
                             break;
                         }
                     }
-                    if (props.deleteEmptyLineFast && emptyLine) {
+                    if (getProps().deleteEmptyLineFast && emptyLine) {
                         if (line == 0) {
                             // Just delete whitespaces before
                             this.text.delete(line, 0, line, col);
@@ -1913,8 +1913,8 @@ public class CodeEditor extends View implements ContentListener, Formatter.Forma
                         return;
                     }
 
-                    if (props.deleteMultiSpaces != 1 && col > 0 && this.text.charAt(line, col - 1) == ' ') {
-                        this.text.delete(line, Math.max(0, col - (props.deleteMultiSpaces == -1 ? getTabWidth() : props.deleteMultiSpaces)), line, col);
+                    if (getProps().deleteMultiSpaces != 1 && col > 0 && this.text.charAt(line, col - 1) == ' ') {
+                        this.text.delete(line, Math.max(0, col - (getProps().deleteMultiSpaces == -1 ? getTabWidth() : getProps().deleteMultiSpaces)), line, col);
                         return;
                     }
                 }
@@ -1969,7 +1969,7 @@ public class CodeEditor extends View implements ContentListener, Formatter.Forma
             }
             this.text.replace(cur.getLeftLine(), cur.getLeftColumn(), cur.getRightLine(), cur.getRightColumn(), text);
         } else {
-            if (props.autoIndent && text.length() != 0 && applyAutoIndent) {
+            if (getProps().autoIndent && text.length() != 0 && applyAutoIndent) {
                 char first = text.charAt(0);
                 if (first == '\n' || first == '\r') {
                     String line = this.text.getLineString(cur.getLeftLine());
@@ -2125,7 +2125,7 @@ public class CodeEditor extends View implements ContentListener, Formatter.Forma
         if (animation && !noAnimation) {
             scroller.forceFinished(true);
             scroller.startScroll(getOffsetX(), getOffsetY(), (int) (targetX - getOffsetX()), (int) (targetY - getOffsetY()));
-            if (props.awareScrollbarWhenAdjust && Math.abs(getOffsetY() - targetY) > dpUnit * 100) {
+            if (getProps().awareScrollbarWhenAdjust && Math.abs(getOffsetY() - targetY) > dpUnit * 100) {
                 touchHandler.notifyScrolled();
             }
         } else {
@@ -3272,7 +3272,7 @@ public class CodeEditor extends View implements ContentListener, Formatter.Forma
     public void moveSelectionEnd() {
         if (selectionAnchor == null) {
             int line = cursor.getLeftLine();
-            if (props.enhancedHomeAndEnd && cursor.getLeftColumn() == getText().getColumnCount(line)) {
+            if (getProps().enhancedHomeAndEnd && cursor.getLeftColumn() == getText().getColumnCount(line)) {
                 int column = IntPair.getSecond(TextUtils.findLeadingAndTrailingWhitespacePos(text.getLine(cursor.getLeftLine())));
                 setSelection(cursor.getLeftLine(), column);
             } else {
@@ -3290,7 +3290,7 @@ public class CodeEditor extends View implements ContentListener, Formatter.Forma
      */
     public void moveSelectionHome() {
         if (selectionAnchor == null) {
-            if (props.enhancedHomeAndEnd && cursor.getLeftColumn() == 0) {
+            if (getProps().enhancedHomeAndEnd && cursor.getLeftColumn() == 0) {
                 int column = IntPair.getFirst(TextUtils.findLeadingAndTrailingWhitespacePos(text.getLine(cursor.getLeftLine())));
                 setSelection(cursor.getLeftLine(), column);
             } else if (cursor.getLeftColumn() != 0) {
@@ -3514,7 +3514,7 @@ public class CodeEditor extends View implements ContentListener, Formatter.Forma
             var text = data.getText();
             if (text != null && inputConnection != null) {
                 inputConnection.commitText(text, 1);
-                if (props.formatPastedText) {
+                if (getProps().formatPastedText) {
                     formatCodeAsync(lastInsertion.getStart(), lastInsertion.getEnd());
                 }
                 notifyIMEExternalCursorChange();
@@ -3543,7 +3543,7 @@ public class CodeEditor extends View implements ContentListener, Formatter.Forma
         try {
             if (cursor.isSelected()) {
                 int length = cursor.getRight() - cursor.getLeft();
-                if (length > props.clipboardTextLengthLimit) {
+                if (length > getProps().clipboardTextLengthLimit) {
                     Toast.makeText(getContext(), I18nConfig.getResourceId(R.string.sora_editor_clip_text_length_too_large), Toast.LENGTH_SHORT).show();
                 } else {
                     var clip = getText().substring(cursor.getLeft(), cursor.getRight());
@@ -3698,7 +3698,7 @@ public class CodeEditor extends View implements ContentListener, Formatter.Forma
      * @see #getWordRange(int, int, boolean)
      */
     public TextRange getWordRange(final int line, final int column) {
-        return getWordRange(line, column, props.useICULibToSelectWords);
+        return getWordRange(line, column, getProps().useICULibToSelectWords);
     }
 
     /**
@@ -4102,7 +4102,7 @@ public class CodeEditor extends View implements ContentListener, Formatter.Forma
      * Send current selection position to input method
      */
     protected void updateSelection() {
-        if (props.disallowSuggestions) {
+        if (getProps().disallowSuggestions) {
             var index = new java.util.Random().nextInt();
             inputMethodManager.updateSelection(this, index, index, -1, -1);
             return;
@@ -4157,7 +4157,7 @@ public class CodeEditor extends View implements ContentListener, Formatter.Forma
         int selEnd = cur.getRight();
         int startOffset = 0;
         if (request.hintMaxChars == 0) {
-            request.hintMaxChars = props.maxIPCTextLength;
+            request.hintMaxChars = getProps().maxIPCTextLength;
         }
         if (startOffset + request.hintMaxChars < selBegin) {
             startOffset = selBegin - request.hintMaxChars / 2;
@@ -4462,7 +4462,7 @@ public class CodeEditor extends View implements ContentListener, Formatter.Forma
 
         // Prevent fullscreen when the screen height is too small
         // Especially in landscape mode
-        if (!props.allowFullscreen) {
+        if (!getProps().allowFullscreen) {
             outAttrs.imeOptions = EditorInfo.IME_FLAG_NO_EXTRACT_UI | EditorInfo.IME_FLAG_NO_FULLSCREEN;
         }
 
@@ -4489,7 +4489,7 @@ public class CodeEditor extends View implements ContentListener, Formatter.Forma
                 if (region == RegionResolverKt.REGION_TEXT && inbound) {
                     return PointerIcon.getSystemIcon(getContext(), PointerIcon.TYPE_TEXT);
                 } else if (region == RegionResolverKt.REGION_LINE_NUMBER) {
-                    switch (props.actionWhenLineNumberClicked) {
+                    switch (getProps().actionWhenLineNumberClicked) {
                         case DirectAccessProps.LN_ACTION_SELECT_LINE, DirectAccessProps.LN_ACTION_PLACE_SELECTION_HOME -> {
                             return PointerIcon.getSystemIcon(getContext(), PointerIcon.TYPE_HAND);
                         }
@@ -4578,7 +4578,7 @@ public class CodeEditor extends View implements ContentListener, Formatter.Forma
             float distanceX = h_scroll * verticalScrollFactor;
             float distanceY = v_scroll * verticalScrollFactor;
             if (keyEventHandler.getKeyMetaStates().isAltPressed()) {
-                float multiplier = props.fastScrollSensitivity;
+                float multiplier = getProps().fastScrollSensitivity;
                 distanceX *= multiplier;
                 distanceY *= multiplier;
             }
@@ -4603,7 +4603,7 @@ public class CodeEditor extends View implements ContentListener, Formatter.Forma
         }
         verticalAbsorb = false;
         horizontalAbsorb = false;
-        if (oldHeight > h && props.adjustToSelectionOnResize) {
+        if (oldHeight > h && getProps().adjustToSelectionOnResize) {
             ensureSelectionVisible();
         }
     }
@@ -4777,7 +4777,7 @@ public class CodeEditor extends View implements ContentListener, Formatter.Forma
         // Auto completion
         var needCompletion = false;
         if (completionWindow.isEnabled() && !text.isUndoManagerWorking()) {
-            if ((!inputConnection.composingText.isComposing() || props.autoCompletionOnComposing) && endColumn != 0 && startLine == endLine) {
+            if ((!inputConnection.composingText.isComposing() || getProps().autoCompletionOnComposing) && endColumn != 0 && startLine == endLine) {
                 needCompletion = true;
             } else {
                 completionWindow.hide();
